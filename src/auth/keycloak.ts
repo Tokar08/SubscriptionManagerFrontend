@@ -27,9 +27,8 @@ export const initKeycloak = () => {
     });
 };
 
-export const getKeycloak = () => {
-    return keycloak;
-};
+export const getKeycloak = () => keycloak;
+
 export const getCategories = async () => {
     try {
         const response = await fetch('http://localhost:7878/api/v1/categories');

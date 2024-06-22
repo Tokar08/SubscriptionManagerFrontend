@@ -1,22 +1,31 @@
 import React, { useEffect, useState } from 'react';
-import { getCategories, getSubscriptions, initKeycloak } from './keycloak';
+import MainNavbar from './components/MainNavbar';
+import SubscriptionCard from '../src/components/SubscriptionCard';
+import { getSubscriptions, initKeycloak } from './auth/keycloak';
+
+interface Subscription {
+    subscriptionId: string;
+    userId: string;
+    category: {
+        categoryName: string;
+    };
+    serviceName: string;
+    amount: number;
+    currency: string;
+    nextPaymentDate: string;
+}
 
 const App: React.FC = () => {
-    const [categories, setCategories] = useState<any[]>([]);
-    const [subscriptions, setSubscriptions] = useState<any[]>([]);
+    const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
                 await initKeycloak();
-
-                const categoriesData = await getCategories();
-                setCategories(categoriesData);
-
-                const subscriptionsData = await getSubscriptions();
-                setSubscriptions(subscriptionsData);
+                const data = await getSubscriptions();
+                setSubscriptions(data);
             } catch (error) {
-                console.error('Ошибка при получении данных:', error);
+                console.error('Не удалось получить подписки:', error);
             }
         };
 
@@ -24,22 +33,26 @@ const App: React.FC = () => {
     }, []);
 
     return (
-        <div>
-            <h1>Категории</h1>
-            <ul>
-                {categories.map(category => (
-                    <li key={category.categoryId}>{category.categoryName}</li>
-                ))}
-            </ul>
-
-            <h1>Подписки</h1>
-            <ul>
-                {subscriptions.map(subscription => (
-                    <li key={subscription.subscriptionId}>{subscription.serviceName}</li>
-                ))}
-            </ul>
+        <div className="min-h-screen gradient-background">
+            <MainNavbar />
+            <div className="container mx-auto py-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {subscriptions.map(subscription => (
+                        <div key={subscription.subscriptionId} className="mx-auto text-center">
+                            <SubscriptionCard
+                                serviceName={subscription.serviceName}
+                                amount={subscription.amount}
+                                currency={subscription.currency}
+                                nextPaymentDate={subscription.nextPaymentDate}
+                                category={subscription.category}
+                            />
+                        </div>
+                    ))}
+                </div>
+            </div>
         </div>
     );
+
 };
 
 export default App;

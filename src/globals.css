@@ -1,0 +1,26 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.container {
+    width: 80%;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+    font-family: Arial, sans-serif;
+    margin: 50px auto 0;
+    border-radius: 20px;
+    padding: 20px;
+}
+
+.card
+{
+    width: 60%;
+    color: black;
+    min-width: 300px;
+    background: linear-gradient(to bottom, #ffffff, #ffffff);
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+    margin-bottom: 30px;
+}
+
+.gradient-background {
+    background: linear-gradient(to bottom, black, #1a1a1a, #18181b);
+}
