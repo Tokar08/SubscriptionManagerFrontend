@@ -1,6 +1,5 @@
 import Keycloak, { KeycloakInstance, KeycloakOnLoad } from 'keycloak-js';
-import {CalendarDate, DateValue} from "@nextui-org/react";
-import axios from "axios";
+import axios from 'axios';
 
 const initOptions = {
     url: 'http://localhost:8081',
@@ -17,11 +16,11 @@ export const initKeycloak = () => {
             onLoad: 'login-required',
         }).then((authenticated) => {
             if (authenticated) {
-                console.log("Authentication successful");
-                console.log("Used token:", keycloak.token);
+                console.log("Аутентификация успешна");
+                console.log("Используемый токен:", keycloak.token);
                 resolve(keycloak);
             } else {
-                reject(new Error('Authentication failed'));
+                reject(new Error('Аутентификация не удалась'));
             }
         }).catch((error) => {
             reject(error);
@@ -72,37 +71,31 @@ export const getSubscriptions = async () => {
     }
 };
 
-export const createSubscription = async (
-    serviceName: string,
-    nextPaymentDate: CalendarDate | null | undefined,
-    amount: number | string,
-    currency: string,
-    categoryId: string
-) => {
+export const createSubscription = async (subscription: any) => {
     try {
-        const token =  keycloak.token;
+        const token = keycloak.token;
 
         if (!token) {
             throw new Error('Keycloak token is missing.');
         }
 
-        await axios.post('http://localhost:7878/api/v1/subscriptions', {
-            serviceName,
-            nextPaymentDate: nextPaymentDate,
-            amount: parseFloat(amount as string),
-            currency,
-            categoryId
-        }, {
+        console.log('Отправка запроса на создание подписки с данными:', JSON.stringify(subscription, null, 2));
+
+        const response = await axios.post('http://localhost:7878/api/v1/subscriptions', subscription, {
             headers: {
                 Authorization: `Bearer ${token}`,
                 'Content-Type': 'application/json'
             }
         });
 
-        console.log('Subscription created successfully');
+        console.log('Подписка успешно создана', response.data);
         return true;
-    } catch (error) {
-        console.error('Failed to create subscription:', error);
+    } catch (error: any) {
+        if (error.response) {
+            console.error('Ошибка сервера:', error.response.data);
+        } else {
+            console.error('Ошибка запроса:', error.message);
+        }
         throw error;
     }
 };

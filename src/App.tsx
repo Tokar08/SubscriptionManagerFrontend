@@ -44,7 +44,8 @@ const App: React.FC = () => {
         const fetchCategories = async () => {
             try {
                 const categoriesData = await getCategories();
-                setCategories(categoriesData);
+                setCategories(categoriesData.sort((a: { categoryName: string; }, b: { categoryName: any; }) =>
+                                                    a.categoryName.localeCompare(b.categoryName)));
             } catch (error) {
                 console.error('Failed to fetch categories:', error);
             }
@@ -62,8 +63,8 @@ const App: React.FC = () => {
         }
     };
 
-    const handleCreate = () => {
-        fetchData();
+    const handleCreate = async () => {
+        await fetchData();
     };
 
     const fetchData = async () => {
