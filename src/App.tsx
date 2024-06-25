@@ -1,27 +1,21 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import MainNavbar from './components/MainNavbar';
 import SubscriptionCard from './components/SubscriptionCard';
 import CreateSubscriptionModal from './components/CreateSubscriptionModal';
-import { getSubscriptions, initKeycloak, deleteSubscription, getCategories } from './auth/keycloak';
+import UpdateSubscriptionModal from './components/UpdateSubscriptionModal';
+import { getSubscriptions, initKeycloak, deleteSubscription, getCategories, updateSubscription } from './auth/keycloak';
 import { Pagination, Button } from '@nextui-org/react';
-
-interface Subscription {
-    subscriptionId: string;
-    userId: string;
-    category: {
-        categoryId: string;
-        categoryName: string;
-    };
-    serviceName: string;
-    amount: number;
-    currency: string;
-    nextPaymentDate: string;
-}
+import { ISubscription } from './interfaces/ISubscription';
 
 const App: React.FC = () => {
-    const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
-    const [currentPage, setCurrentPage] = useState<number>(1);
+    const [subscriptions, setSubscriptions] = useState<ISubscription[]>([]);
+    const [currentPage, setCurrentPage] = useState<number>(() => {
+        const savedPage = localStorage.getItem('currentPage');
+        return savedPage ? parseInt(savedPage, 10) : 1;
+    });
     const [isModalOpen, setModalOpen] = useState<boolean>(false);
+    const [isUpdateModalOpen, setUpdateModalOpen] = useState<boolean>(false);
+    const [selectedSubscription, setSelectedSubscription] = useState<ISubscription | null>(null);
     const [categories, setCategories] = useState<any[]>([]);
 
     const itemsPerPage = 9;
@@ -45,7 +39,7 @@ const App: React.FC = () => {
             try {
                 const categoriesData = await getCategories();
                 setCategories(categoriesData.sort((a: { categoryName: string; }, b: { categoryName: any; }) =>
-                                                    a.categoryName.localeCompare(b.categoryName)));
+                    a.categoryName.localeCompare(b.categoryName)));
             } catch (error) {
                 console.error('Failed to fetch categories:', error);
             }
@@ -63,10 +57,6 @@ const App: React.FC = () => {
         }
     };
 
-    const handleCreate = async () => {
-        await fetchData();
-    };
-
     const fetchData = async () => {
         try {
             await initKeycloak();
@@ -77,6 +67,43 @@ const App: React.FC = () => {
         }
     };
 
+    const storeCurrentPage = (page: number) => {
+        localStorage.setItem('currentPage', page.toString());
+        setCurrentPage(page);
+    };
+
+    const handleCreate = async () => {
+        await fetchData();
+    };
+
+    const handleUpdate = async () => {
+        try {
+            if (!selectedSubscription) {
+                console.error('No subscription selected for update.');
+                return;
+            }
+
+            await updateSubscription(selectedSubscription.subscriptionId, selectedSubscription);
+            await fetchData();
+            setUpdateModalOpen(false);
+        } catch (error) {
+            console.error('Failed to update subscription:', error);
+        }
+    };
+
+    const openUpdateModal = (subscription: ISubscription): Promise<void> => {
+        return new Promise<void>((resolve, reject) => {
+            setSelectedSubscription(subscription);
+            setUpdateModalOpen(true);
+            resolve();
+        });
+    };
+
+
+    if (subscriptions.length === 0) {
+        return null;
+    }
+
     const totalPages = Math.ceil(subscriptions.length / itemsPerPage);
 
     const paginatedSubscriptions = subscriptions.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
@@ -86,10 +113,10 @@ const App: React.FC = () => {
             <MainNavbar />
             <div className="container mx-auto py-8">
                 <Button
-                    isIconOnly
-                    color="primary"
+                    variant="ghost"
+                    color="success"
                     onClick={() => setModalOpen(true)}
-                >+</Button>
+                >Create new subscription</Button>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
                     {paginatedSubscriptions.map(subscription => (
                         <div key={subscription.subscriptionId} className="mx-auto text-center">
@@ -101,26 +128,41 @@ const App: React.FC = () => {
                                 nextPaymentDate={subscription.nextPaymentDate}
                                 category={subscription.category}
                                 onDelete={handleDelete}
+                                onUpdate={() => openUpdateModal(subscription)}
                             />
                         </div>
                     ))}
                 </div>
                 <div className="flex justify-center mt-8">
                     <Pagination
-                        showControls
                         total={totalPages}
-                        initialPage={1}
+                        initialPage={currentPage}
+                        onChange={(page) => {
+                            storeCurrentPage(page);
+                            setCurrentPage(page);
+                        }}
+                        showControls
                         color="secondary"
-                        onChange={page => setCurrentPage(page)}
                     />
                 </div>
             </div>
+
             <CreateSubscriptionModal
                 isOpen={isModalOpen}
                 onClose={() => setModalOpen(false)}
                 onCreate={handleCreate}
                 categories={categories}
             />
+
+            {selectedSubscription && (
+                <UpdateSubscriptionModal
+                    isOpen={isUpdateModalOpen}
+                    onClose={() => setUpdateModalOpen(false)}
+                    onUpdate={handleUpdate}
+                    categories={categories}
+                    subscription={selectedSubscription}
+                />
+            )}
         </div>
     );
 };

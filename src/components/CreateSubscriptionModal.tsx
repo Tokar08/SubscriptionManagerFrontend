@@ -14,6 +14,7 @@ import {
 } from '@nextui-org/react';
 import { createSubscription } from '../auth/keycloak';
 
+
 interface CreateSubscriptionModalProps {
     isOpen: boolean;
     onClose: () => void;

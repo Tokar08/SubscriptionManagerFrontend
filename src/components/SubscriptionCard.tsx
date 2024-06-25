@@ -14,29 +14,17 @@ import {
     ModalFooter,
     useDisclosure
 } from '@nextui-org/react';
-import { deleteSubscription as deleteSubscriptionApi, initKeycloak, getSubscriptions } from '../auth/keycloak';
-import '../globals.css';
+import { ISubscriptionCardProps } from '../interfaces/ISubscriptionCardProps';
 
-interface SubscriptionCardProps {
-    subscriptionId: string;
-    serviceName: string;
-    amount: number;
-    currency: string;
-    nextPaymentDate: string;
-    category: {
-        categoryName: string;
-    };
-    onDelete: (subscriptionId: string) => void;
-}
-
-const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
+const SubscriptionCard: React.FC<ISubscriptionCardProps> = ({
                                                                subscriptionId,
                                                                serviceName,
                                                                amount,
                                                                currency,
                                                                nextPaymentDate,
                                                                category,
-                                                               onDelete
+                                                               onDelete,
+                                                               onUpdate
                                                            }) => {
     const { isOpen, onOpen, onClose } = useDisclosure();
     const [logoUrl, setLogoUrl] = useState<string | null>(null);
@@ -45,7 +33,7 @@ const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
     useEffect(() => {
         const fetchLogo = async () => {
             try {
-                const response = await axios.get(`https://api.brandfetch.io/v2/search/${serviceName}`, {
+                const response = await axios.get(`https://api.brandfetch.io/v2/search/${encodeURIComponent(serviceName)}`, {
                     headers: {
                         Authorization: `Bearer NlIXKCqBi2UAqH/RF1KZ/q39fMpeSZJ8KYK41j+TQQg=`
                     }
@@ -66,8 +54,13 @@ const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
         fetchLogo();
     }, [serviceName]);
 
-    const handleUpdate = () => {
-        console.log('Update action');
+    const handleUpdate = async () => {
+        try {
+            await onUpdate();
+            onClose();
+        } catch (error) {
+            console.error('Failed to update subscription:', error);
+        }
     };
 
     const handleDelete = async () => {
@@ -130,22 +123,18 @@ const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
 
             <Modal isOpen={isOpen} onClose={onClose} backdrop="blur">
                 <ModalContent className="dark">
-                    {onClose => (
-                        <>
-                            <ModalHeader className="flex flex-col gap-1 text-white">Are you sure?</ModalHeader>
-                            <ModalBody className="text-white">
-                                <p>Are you sure you want to delete this subscription?</p>
-                            </ModalBody>
-                            <ModalFooter>
-                                <Button color="danger" variant="light" onClick={onClose}>
-                                    Cancel
-                                </Button>
-                                <Button color="primary" onClick={handleDelete}>
-                                    Confirm
-                                </Button>
-                            </ModalFooter>
-                        </>
-                    )}
+                    <ModalHeader className="flex flex-col gap-1 text-white">Are you sure?</ModalHeader>
+                    <ModalBody className="text-white">
+                        <p>Are you sure you want to delete this subscription?</p>
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button color="danger" variant="light" onClick={onClose}>
+                            Cancel
+                        </Button>
+                        <Button color="primary" onClick={handleDelete}>
+                            Confirm
+                        </Button>
+                    </ModalFooter>
                 </ModalContent>
             </Modal>
         </Card>

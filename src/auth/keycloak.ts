@@ -48,7 +48,7 @@ export const getSubscriptions = async () => {
         const token = keycloak.token;
         console.log('Used token:', token);
 
-        const response = await fetch('http://localhost:7878/api/v1/subscriptions/all', {
+        const response = await fetch('http://localhost:7878/api/v1/subscriptions', {
             headers: {
                 Authorization: `Bearer ${token}`,
                 'Content-Type': 'application/json'
@@ -89,6 +89,35 @@ export const createSubscription = async (subscription: any) => {
         });
 
         console.log('Подписка успешно создана', response.data);
+        return true;
+    } catch (error: any) {
+        if (error.response) {
+            console.error('Ошибка сервера:', error.response.data);
+        } else {
+            console.error('Ошибка запроса:', error.message);
+        }
+        throw error;
+    }
+};
+
+export const updateSubscription = async (subscriptionId: string, updatedSubscription: any) => {
+    try {
+        const token = keycloak.token;
+
+        if (!token) {
+            throw new Error('Keycloak token is missing.');
+        }
+
+        console.log('Отправка запроса на обновление подписки с данными:', JSON.stringify(updatedSubscription, null, 2));
+
+        const response = await axios.put(`http://localhost:7878/api/v1/subscriptions/${subscriptionId}`, updatedSubscription, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        console.log('Подписка успешно обновлена', response.data);
         return true;
     } catch (error: any) {
         if (error.response) {
