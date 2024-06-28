@@ -4,8 +4,9 @@ import SubscriptionCard from './components/SubscriptionCard';
 import CreateSubscriptionModal from './components/CreateSubscriptionModal';
 import UpdateSubscriptionModal from './components/UpdateSubscriptionModal';
 import { getSubscriptions, initKeycloak, deleteSubscription, getCategories, updateSubscription } from './auth/keycloak';
-import { Pagination, Button } from '@nextui-org/react';
+import { Pagination, Button, Input } from '@nextui-org/react';
 import { ISubscription } from './interfaces/ISubscription';
+import { SearchIcon } from "./icons/SearchIcon";
 
 const App: React.FC = () => {
     const [subscriptions, setSubscriptions] = useState<ISubscription[]>([]);
@@ -17,6 +18,7 @@ const App: React.FC = () => {
     const [isUpdateModalOpen, setUpdateModalOpen] = useState<boolean>(false);
     const [selectedSubscription, setSelectedSubscription] = useState<ISubscription | null>(null);
     const [categories, setCategories] = useState<any[]>([]);
+    const [searchText, setSearchText] = useState<string>('');
 
     const itemsPerPage = 9;
 
@@ -92,31 +94,64 @@ const App: React.FC = () => {
     };
 
     const openUpdateModal = (subscription: ISubscription): Promise<void> => {
-        return new Promise<void>((resolve, reject) => {
+        return new Promise<void>((resolve) => {
             setSelectedSubscription(subscription);
             setUpdateModalOpen(true);
             resolve();
         });
     };
 
+    useEffect(() => {
+        const savedSearchText = localStorage.getItem('searchText');
+        if (savedSearchText) {
+            setSearchText(savedSearchText);
+        }
+    }, []);
+
+    useEffect(() => {
+        localStorage.setItem('searchText', searchText);
+    }, [searchText]);
+
+    const filteredSubscriptions = subscriptions.filter(subscription =>
+        subscription.serviceName.toLowerCase().includes(searchText.toLowerCase())
+    );
 
     if (subscriptions.length === 0) {
         return null;
     }
 
-    const totalPages = Math.ceil(subscriptions.length / itemsPerPage);
+    const totalPages = Math.ceil(filteredSubscriptions.length / itemsPerPage);
 
-    const paginatedSubscriptions = subscriptions.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+    const paginatedSubscriptions = filteredSubscriptions.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
     return (
         <div className="min-h-screen gradient-background">
-            <MainNavbar />
+            <MainNavbar/>
             <div className="container mx-auto py-8">
-                <Button
-                    variant="ghost"
-                    color="success"
-                    onClick={() => setModalOpen(true)}
-                >Create new subscription</Button>
+                <div className="flex justify-end mb-4">
+                    <Button
+                        variant="ghost"
+                        color="success"
+                        onClick={() => setModalOpen(true)}
+                    >
+                        Create new subscription
+                    </Button>
+                </div>
+
+                <div className="flex justify-center mb-16 mt-0">
+                    <Input
+                        size="lg"
+                        isClearable
+                        radius="lg"
+                        placeholder="Type to search subscription..."
+                        className="text-lg max-w-xl w-full"
+                        startContent={<SearchIcon/>}
+                        value={searchText}
+                        onChange={(e) => setSearchText(e.target.value)}
+                        onClear={() => setSearchText('')}
+                    />
+                </div>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
                     {paginatedSubscriptions.map(subscription => (
                         <div key={subscription.subscriptionId} className="mx-auto text-center">
