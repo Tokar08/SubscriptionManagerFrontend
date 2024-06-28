@@ -15,6 +15,8 @@ import {
     useDisclosure
 } from '@nextui-org/react';
 import { ISubscriptionCardProps } from '../interfaces/ISubscriptionCardProps';
+import {EditDocumentIcon} from "../icons/EditSubIcon";
+import {DeleteSubIcon} from "../icons/DeleteSubIcon";
 
 const SubscriptionCard: React.FC<ISubscriptionCardProps> = ({
                                                                subscriptionId,
@@ -107,6 +109,7 @@ const SubscriptionCard: React.FC<ISubscriptionCardProps> = ({
                     variant="ghost"
                     onClick={handleUpdate}
                     style={{ minWidth: '70px', marginRight: '10px' }}
+                    startContent={<EditDocumentIcon/>}
                 >
                     Update
                 </Button>
@@ -116,6 +119,7 @@ const SubscriptionCard: React.FC<ISubscriptionCardProps> = ({
                     variant="ghost"
                     onClick={onOpen}
                     style={{ minWidth: '70px' }}
+                    startContent={<DeleteSubIcon/>}
                 >
                     Delete
                 </Button>

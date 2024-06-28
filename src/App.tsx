@@ -7,6 +7,7 @@ import { getSubscriptions, initKeycloak, deleteSubscription, getCategories, upda
 import { Pagination, Button, Input } from '@nextui-org/react';
 import { ISubscription } from './interfaces/ISubscription';
 import { SearchIcon } from "./icons/SearchIcon";
+import {AddSubIcon} from "./icons/AddSubIcon";
 
 const App: React.FC = () => {
     const [subscriptions, setSubscriptions] = useState<ISubscription[]>([]);
@@ -133,6 +134,7 @@ const App: React.FC = () => {
                         variant="ghost"
                         color="success"
                         onClick={() => setModalOpen(true)}
+                        startContent={<AddSubIcon/>}
                     >
                         Create new subscription
                     </Button>
