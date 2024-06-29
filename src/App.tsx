@@ -1,13 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, ChangeEvent } from 'react';
 import MainNavbar from './components/MainNavbar';
 import SubscriptionCard from './components/SubscriptionCard';
 import CreateSubscriptionModal from './components/CreateSubscriptionModal';
 import UpdateSubscriptionModal from './components/UpdateSubscriptionModal';
 import { getSubscriptions, initKeycloak, deleteSubscription, getCategories, updateSubscription } from './auth/keycloak';
-import { Pagination, Button, Input } from '@nextui-org/react';
+import { Pagination, Button, Input, Select, SelectItem } from '@nextui-org/react';
 import { ISubscription } from './interfaces/ISubscription';
 import { SearchIcon } from "./icons/SearchIcon";
-import {AddSubIcon} from "./icons/AddSubIcon";
+import { AddSubIcon } from "./icons/AddSubIcon";
+import { ICategory } from "./interfaces/ICategory";
 
 const App: React.FC = () => {
     const [subscriptions, setSubscriptions] = useState<ISubscription[]>([]);
@@ -18,8 +19,15 @@ const App: React.FC = () => {
     const [isModalOpen, setModalOpen] = useState<boolean>(false);
     const [isUpdateModalOpen, setUpdateModalOpen] = useState<boolean>(false);
     const [selectedSubscription, setSelectedSubscription] = useState<ISubscription | null>(null);
-    const [categories, setCategories] = useState<any[]>([]);
-    const [searchText, setSearchText] = useState<string>('');
+    const [categories, setCategories] = useState<ICategory[]>([]);
+    const [searchText, setSearchText] = useState<string>(() => {
+        const savedSearchText = localStorage.getItem('searchText');
+        return savedSearchText ? savedSearchText : '';
+    });
+    const [selectedCategory, setSelectedCategory] = useState<string | undefined>(() => {
+        const savedCategory = localStorage.getItem('selectedCategory');
+        return savedCategory ? savedCategory : undefined;
+    });
 
     const itemsPerPage = 9;
 
@@ -41,7 +49,7 @@ const App: React.FC = () => {
         const fetchCategories = async () => {
             try {
                 const categoriesData = await getCategories();
-                setCategories(categoriesData.sort((a: { categoryName: string; }, b: { categoryName: any; }) =>
+                setCategories(categoriesData.sort((a: ICategory, b: ICategory) =>
                     a.categoryName.localeCompare(b.categoryName)));
             } catch (error) {
                 console.error('Failed to fetch categories:', error);
@@ -103,58 +111,84 @@ const App: React.FC = () => {
     };
 
     useEffect(() => {
-        const savedSearchText = localStorage.getItem('searchText');
-        if (savedSearchText) {
-            setSearchText(savedSearchText);
-        }
-    }, []);
-
-    useEffect(() => {
         localStorage.setItem('searchText', searchText);
     }, [searchText]);
 
-    const filteredSubscriptions = subscriptions.filter(subscription =>
-        subscription.serviceName.toLowerCase().includes(searchText.toLowerCase())
-    );
+    useEffect(() => {
+        if (selectedCategory) {
+            localStorage.setItem('selectedCategory', selectedCategory);
+        } else {
+            localStorage.removeItem('selectedCategory');
+        }
+    }, [selectedCategory]);
+
+    const filteredSubscriptions = subscriptions.filter(subscription => {
+        const matchesSearchText = subscription.serviceName.toLowerCase().includes(searchText.toLowerCase());
+        const matchesCategory = selectedCategory ? subscription.category.categoryId === selectedCategory : true;
+
+        return matchesSearchText && matchesCategory;
+    });
 
     if (subscriptions.length === 0) {
         return null;
     }
 
     const totalPages = Math.ceil(filteredSubscriptions.length / itemsPerPage);
-
     const paginatedSubscriptions = filteredSubscriptions.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
     return (
         <div className="min-h-screen gradient-background">
-            <MainNavbar/>
+            <MainNavbar />
             <div className="container mx-auto py-8">
-                <div className="flex justify-end mb-4">
-                    <Button
-                        variant="ghost"
-                        color="success"
-                        onClick={() => setModalOpen(true)}
-                        startContent={<AddSubIcon/>}
+                <div
+                    className="flex flex-col md:flex-row justify-between items-center mb-10 mt-5 space-y-4 md:space-y-0 md:space-x-4">
+                    <Select
+                        placeholder="Отсортировать подписки по..."
+                        size="lg"
+                        fullWidth={false}
+                        className="w-full md:w-80"
+                        value={selectedCategory || ''}
+                        onChange={(event: ChangeEvent<HTMLSelectElement>) => {
+                            setSelectedCategory(event.target.value);
+                        }}
                     >
-                        Create new subscription
-                    </Button>
-                </div>
+                        {categories.map(category => (
+                            <SelectItem key={category.categoryId} value={category.categoryId}>
+                                {category.categoryName}
+                            </SelectItem>
+                        ))}
+                    </Select>
 
-                <div className="flex justify-center mb-16 mt-0">
                     <Input
                         size="lg"
                         isClearable
                         radius="lg"
-                        placeholder="Type to search subscription..."
-                        className="text-lg max-w-xl w-full"
+                        placeholder="Введите для поиска подписки..."
+                        className="text-lg w-full max-w-md pl-0"
                         startContent={<SearchIcon/>}
                         value={searchText}
-                        onChange={(e) => setSearchText(e.target.value)}
-                        onClear={() => setSearchText('')}
+                        onChange={(e) => {
+                            setSearchText(e.target.value);
+                        }}
+                        onClear={() => {
+                            setSearchText('');
+                        }}
                     />
+
+                    <Button
+                        variant="ghost"
+                        color="success"
+                        size="lg"
+                        onClick={() => setModalOpen(true)}
+                        startContent={<AddSubIcon/>}
+                        className="w-full md:w-auto"
+                    >
+                        Создать новую подписку
+                    </Button>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+                <hr/>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-10">
                     {paginatedSubscriptions.map(subscription => (
                         <div key={subscription.subscriptionId} className="mx-auto text-center">
                             <SubscriptionCard
@@ -170,6 +204,7 @@ const App: React.FC = () => {
                         </div>
                     ))}
                 </div>
+                <hr/>
                 <div className="flex justify-center mt-8">
                     <Pagination
                         total={totalPages}
@@ -179,7 +214,8 @@ const App: React.FC = () => {
                             setCurrentPage(page);
                         }}
                         showControls
-                        color="secondary"
+                        color="warning"
+                        className="dark"
                     />
                 </div>
             </div>
