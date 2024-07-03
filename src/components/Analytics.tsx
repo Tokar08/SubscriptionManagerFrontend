@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import CanvasJSReact from '@canvasjs/react-charts';
 import axios from 'axios';
-import { Button, Tooltip } from '@nextui-org/react';
+import {Button, ButtonGroup, Tooltip} from '@nextui-org/react';
 import MainNavbar from "./MainNavbar";
 
 const CanvasJSChart = CanvasJSReact.CanvasJSChart;
@@ -66,6 +66,7 @@ const Analytics: React.FC = () => {
                 <h1 className="text-3xl text-white mb-8">Total Amounts by Subscription</h1>
                 <hr className="w-full border-t-2 border-white mb-8"/>
                 <div className="flex justify-end w-full mb-5">
+                    <ButtonGroup>
                     <Tooltip content="Sort ascending" className="dark text-white">
                         <Button color="primary" variant="ghost" isIconOnly onClick={() => sortData('asc')} className="text-2xl">
                             ↑
@@ -81,6 +82,7 @@ const Analytics: React.FC = () => {
                             ✕
                         </Button>
                     </Tooltip>
+                    </ButtonGroup>
                 </div>
                 <div className="w-full bg-white rounded-lg p-4 mb-8">
                     {dataPoints.length > 0 && (
