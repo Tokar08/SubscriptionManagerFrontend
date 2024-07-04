@@ -1,10 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import { Navbar, NavbarBrand, NavbarContent, NavbarItem, NavbarMenuToggle, NavbarMenu, NavbarMenuItem, Link, Button } from "@nextui-org/react";
+import {
+    Navbar,
+    NavbarBrand,
+    NavbarContent,
+    NavbarItem,
+    NavbarMenuToggle,
+    NavbarMenu,
+    NavbarMenuItem,
+    Link,
+    Button,
+    Dropdown, DropdownTrigger, Avatar, DropdownMenu, DropdownItem
+} from "@nextui-org/react";
 import Keycloak from 'keycloak-js';
 import { getKeycloak } from '../auth/keycloak';
+import { useLocation } from 'react-router-dom';
 
 const MainNavbar: React.FC = () => {
     const [keycloak, setKeycloak] = useState<Keycloak | null>(null);
+    const location = useLocation();
 
     useEffect(() => {
         const kc = getKeycloak();
@@ -31,19 +44,41 @@ const MainNavbar: React.FC = () => {
                 </NavbarBrand>
                 <div className="flex items-center space-x-8">
                     <NavbarItem>
-                        <Link color="foreground" href="/" className="text-lg">
+                        <Link
+                            color="foreground"
+                            href="/"
+                            className={`text-lg ${location.pathname === "/" ? "text-blue-500" : ""}`}
+                        >
                             Home
                         </Link>
                     </NavbarItem>
                     <NavbarItem>
-                        <Link href="/analytics" color="foreground" className="text-lg">
+                        <Link
+                            href="/analytics"
+                            color="foreground"
+                            className={`text-lg ${location.pathname === "/analytics" ? "text-blue-500" : ""}`}
+                        >
                             Analytics
                         </Link>
                     </NavbarItem>
                     <NavbarItem>
-                        <Button color="danger" variant="flat" onClick={handleLogout}>
-                            Logout
-                        </Button>
+                        <Dropdown className="dark text-white">
+                            <DropdownTrigger>
+                                <Avatar
+                                    showFallback
+                                    src='https://images.unsplash.com/broken'
+                                    isBordered
+                                    color="success"
+                                    size="sm"
+                                    radius="md"
+                                />
+                            </DropdownTrigger>
+                            <DropdownMenu aria-label="User Actions">
+                                <DropdownItem color="danger" variant="bordered" onClick={handleLogout}>
+                                    Logout
+                                </DropdownItem>
+                            </DropdownMenu>
+                        </Dropdown>
                     </NavbarItem>
                 </div>
             </NavbarContent>
@@ -56,12 +91,20 @@ const MainNavbar: React.FC = () => {
 
             <NavbarMenu>
                 <NavbarMenuItem>
-                    <Link color="foreground" href="/" className="text-xl">
+                    <Link
+                        color="foreground"
+                        href="/"
+                        className={`text-xl ${location.pathname === "/" ? "text-blue-500" : ""}`}
+                    >
                         Home
                     </Link>
                 </NavbarMenuItem>
                 <NavbarMenuItem>
-                    <Link href="/analytics" color="foreground" className="text-xl">
+                    <Link
+                        href="/analytics"
+                        color="foreground"
+                        className={`text-xl ${location.pathname === "/analytics" ? "text-blue-500" : ""}`}
+                    >
                         Analytics
                     </Link>
                 </NavbarMenuItem>
