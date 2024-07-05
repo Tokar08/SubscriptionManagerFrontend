@@ -32,11 +32,9 @@ export const getKeycloak = () => keycloak;
 
 export const getCategories = async () => {
     try {
-        const response = await fetch('http://localhost:7878/api/v1/categories');
-        if (!response.ok) throw new Error(`Error: ${response.status}`);
-        const data = await response.json();
-        console.log('Categories data:', data);
-        return data;
+        const response = await axios.get('http://localhost:7878/api/v1/categories');
+        console.log('Categories data:', response.data);
+        return response.data;
     } catch (error) {
         console.error('Failed to fetch categories:', error);
         throw error;
@@ -48,23 +46,15 @@ export const getSubscriptions = async () => {
         const token = keycloak.token;
         console.log('Used token:', token);
 
-        const response = await fetch('http://localhost:7878/api/v1/subscriptions', {
+        const response = await axios.get('http://localhost:7878/api/v1/subscriptions', {
             headers: {
                 Authorization: `Bearer ${token}`,
                 'Content-Type': 'application/json'
             }
         });
 
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error(`Server response error: ${response.status} - ${errorText}`);
-            throw new Error(`Error: ${response.status} - ${errorText}`);
-        }
-
-        const data = await response.json();
-        console.log('Subscriptions data:', data);
-
-        return data;
+        console.log('Subscriptions data:', response.data);
+        return response.data;
     } catch (error) {
         console.error('Failed to fetch subscriptions:', error);
         throw error;
@@ -133,21 +123,12 @@ export const deleteSubscription = async (subscriptionId: string) => {
     try {
         const token = keycloak.token;
         console.log('Used token:', token);
-
-        const response = await fetch(`http://localhost:7878/api/v1/subscriptions/${subscriptionId}`, {
-            method: 'DELETE',
+        await axios.delete(`http://localhost:7878/api/v1/subscriptions/${subscriptionId}`, {
             headers: {
                 Authorization: `Bearer ${token}`,
                 'Content-Type': 'application/json'
             }
         });
-
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error(`Server response error: ${response.status} - ${errorText}`);
-            throw new Error(`Error: ${response.status} - ${errorText}`);
-        }
-
         console.log('Subscription successfully deleted');
         return true;
     } catch (error) {

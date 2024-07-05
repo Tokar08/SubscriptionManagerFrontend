@@ -1,14 +1,14 @@
-import React, { useState, useEffect, ChangeEvent } from 'react';
+import React, {useState, useEffect, ChangeEvent} from 'react';
 import MainNavbar from './MainNavbar';
 import SubscriptionCard from './SubscriptionCard';
 import CreateSubscriptionModal from './CreateSubscriptionModal';
 import UpdateSubscriptionModal from './UpdateSubscriptionModal';
-import { getSubscriptions, initKeycloak, deleteSubscription, getCategories, updateSubscription } from '../auth/keycloak';
-import { Pagination, Button, Input, Select, SelectItem } from '@nextui-org/react';
-import { ISubscription } from '../interfaces/ISubscription';
-import { SearchIcon } from "../icons/SearchIcon";
-import { AddSubIcon } from "../icons/AddSubIcon";
-import { ICategory } from "../interfaces/ICategory";
+import {getSubscriptions, initKeycloak, deleteSubscription, getCategories, updateSubscription} from '../auth/keycloak';
+import {Pagination, Button, Input, Select, SelectItem} from '@nextui-org/react';
+import {ISubscription} from '../interfaces/ISubscription';
+import {SearchIcon} from "../icons/SearchIcon";
+import {AddSubIcon} from "../icons/AddSubIcon";
+import {ICategory} from "../interfaces/ICategory";
 
 const Home: React.FC = () => {
     const [subscriptions, setSubscriptions] = useState<ISubscription[]>([]);
@@ -138,12 +138,12 @@ const Home: React.FC = () => {
 
     return (
         <div className="min-h-screen gradient-background">
-            <MainNavbar />
+            <MainNavbar/>
             <div className="container mx-auto py-8">
                 <div
                     className="flex flex-col md:flex-row justify-between items-center mb-10 mt-5 space-y-4 md:space-y-0 md:space-x-4">
                     <Select
-                        placeholder="Отсортировать подписки по..."
+                        placeholder="Sort subscriptions by..."
                         size="lg"
                         fullWidth={false}
                         className="w-full md:w-80"
@@ -163,9 +163,9 @@ const Home: React.FC = () => {
                         size="lg"
                         isClearable
                         radius="lg"
-                        placeholder="Введите для поиска подписки..."
+                        placeholder="Enter to search for subscription..."
                         className="text-lg w-full max-w-md pl-0"
-                        startContent={<SearchIcon />}
+                        startContent={<SearchIcon/>}
                         value={searchText}
                         onChange={(e) => {
                             setSearchText(e.target.value);
@@ -180,14 +180,14 @@ const Home: React.FC = () => {
                         color="success"
                         size="lg"
                         onClick={() => setModalOpen(true)}
-                        startContent={<AddSubIcon />}
+                        startContent={<AddSubIcon/>}
                         className="w-full md:w-auto"
                     >
-                        Создать новую подписку
+                        Create a new subscription
                     </Button>
                 </div>
 
-                <hr />
+                <hr/>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-10">
                     {paginatedSubscriptions.map(subscription => (
                         <div key={subscription.subscriptionId} className="mx-auto text-center">
@@ -204,7 +204,7 @@ const Home: React.FC = () => {
                         </div>
                     ))}
                 </div>
-                <hr />
+                <hr/>
                 <div className="flex justify-center mt-8">
                     <Pagination
                         total={totalPages}
