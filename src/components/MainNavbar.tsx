@@ -54,7 +54,7 @@ const MainNavbar: React.FC = () => {
                     </NavbarItem>
                     <NavbarItem>
                         <Link
-                            href="/analytics"
+                            href="/src/pages/Analytics"
                             color="foreground"
                             className={`text-lg ${location.pathname === "/analytics" ? "text-blue-500" : ""}`}
                         >
@@ -101,7 +101,7 @@ const MainNavbar: React.FC = () => {
                 </NavbarMenuItem>
                 <NavbarMenuItem>
                     <Link
-                        href="/analytics"
+                        href="/src/pages/Analytics"
                         color="foreground"
                         className={`text-xl ${location.pathname === "/analytics" ? "text-blue-500" : ""}`}
                     >

@@ -12,15 +12,9 @@ import {
     DateInput,
     DateValue
 } from '@nextui-org/react';
-import { createSubscription } from '../auth/keycloak';
+import { createSubscription } from '../../auth/keycloak';
+import {CreateSubscriptionModalProps} from "../../interfaces/ICreateSubscriptionModalProps";
 
-
-interface CreateSubscriptionModalProps {
-    isOpen: boolean;
-    onClose: () => void;
-    onCreate: () => void;
-    categories: any[];
-}
 
 const CreateSubscriptionModal: React.FC<CreateSubscriptionModalProps> = ({ isOpen, onClose, onCreate, categories }) => {
     const [subscription, setSubscription] = useState({

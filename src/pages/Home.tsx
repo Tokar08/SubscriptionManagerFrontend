@@ -1,8 +1,8 @@
 import React, { useState, useEffect, ChangeEvent } from 'react';
-import MainNavbar from './MainNavbar';
-import SubscriptionCard from './SubscriptionCard';
-import CreateSubscriptionModal from './CreateSubscriptionModal';
-import UpdateSubscriptionModal from './UpdateSubscriptionModal';
+import MainNavbar from '../components/MainNavbar';
+import SubscriptionCard from '../components/SubscriptionCard';
+import CreateSubscriptionModal from '../components/modals/CreateSubscriptionModal';
+import UpdateSubscriptionModal from '../components/modals/UpdateSubscriptionModal';
 import { getSubscriptions, initKeycloak, deleteSubscription, getCategories, updateSubscription } from '../auth/keycloak';
 import { Pagination, Button, Input, Select, SelectItem } from '@nextui-org/react';
 import { ISubscription } from '../interfaces/ISubscription';

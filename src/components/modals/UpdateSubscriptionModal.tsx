@@ -11,18 +11,11 @@ import {
     Select,
     DateInput
 } from '@nextui-org/react';
-import { updateSubscription } from '../auth/keycloak';
-import { ICategory } from '../interfaces/ICategory';
-import { ISubscription } from '../interfaces/ISubscription';
+import { updateSubscription } from '../../auth/keycloak';
+import { ISubscription } from '../../interfaces/ISubscription';
 import { parseDate } from '@internationalized/date';
+import {UpdateSubscriptionModalProps} from "../../interfaces/IUpdateSubscriptionModalProps";
 
-interface UpdateSubscriptionModalProps {
-    isOpen: boolean;
-    onClose: () => void;
-    onUpdate: () => void;
-    categories: ICategory[];
-    subscription: ISubscription | null;
-}
 
 const UpdateSubscriptionModal: React.FC<UpdateSubscriptionModalProps> = ({ isOpen, onClose, onUpdate, categories, subscription }) => {
     const [updatedSubscription, setUpdatedSubscription] = useState<ISubscription>({

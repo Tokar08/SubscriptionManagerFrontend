@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import CanvasJSReact from '@canvasjs/react-charts';
 import axios from 'axios';
 import {Button, ButtonGroup, Tooltip} from '@nextui-org/react';
-import MainNavbar from "./MainNavbar";
+import MainNavbar from "../components/MainNavbar";
 
 const CanvasJSChart = CanvasJSReact.CanvasJSChart;
 
