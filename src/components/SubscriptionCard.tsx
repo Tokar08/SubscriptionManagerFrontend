@@ -35,7 +35,7 @@ const SubscriptionCard: React.FC<ISubscriptionCardProps> = ({
     useEffect(() => {
         const fetchLogo = async () => {
             try {
-                const response = await axios.get(`https://api.brandfetch.io/v2/search/${encodeURIComponent(serviceName)}`, {
+                const response = await axios.get(`https://api.brandfetch.io/v2/search/${encodeURIComponent(serviceName.toLowerCase())}`, {
                     headers: {
                         Authorization: `Bearer NlIXKCqBi2UAqH/RF1KZ/q39fMpeSZJ8KYK41j+TQQg=`
                     }
