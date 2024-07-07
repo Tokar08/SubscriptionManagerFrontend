@@ -14,6 +14,7 @@ import {
 } from '@nextui-org/react';
 import { createSubscription } from '../../auth/keycloak';
 import {CreateSubscriptionModalProps} from "../../interfaces/ICreateSubscriptionModalProps";
+import {currencies} from "../../data/currencies";
 
 
 const CreateSubscriptionModal: React.FC<CreateSubscriptionModalProps> = ({ isOpen, onClose, onCreate, categories }) => {
@@ -180,9 +181,11 @@ const CreateSubscriptionModal: React.FC<CreateSubscriptionModalProps> = ({ isOpe
                             isInvalid={!!validationErrors.currency}
                             errorMessage={validationErrors.currency}
                         >
-                            <SelectItem value="USD" key={'USD'} className="dark">USD</SelectItem>
-                            <SelectItem value="ARS" key={'ARS'} className="dark">ARS</SelectItem>
-                            <SelectItem value="EUR" key={'EUR'} className="dark">EUR</SelectItem>
+                            {currencies.map(currency => (
+                                <SelectItem key={currency.value} value={currency.value} className="dark">
+                                    {currency.label}
+                                </SelectItem>
+                            ))}
                         </Select>
                     </div>
                     <Select

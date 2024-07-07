@@ -15,6 +15,7 @@ import { updateSubscription } from '../../auth/keycloak';
 import { ISubscription } from '../../interfaces/ISubscription';
 import { parseDate } from '@internationalized/date';
 import {UpdateSubscriptionModalProps} from "../../interfaces/IUpdateSubscriptionModalProps";
+import {currencies} from "../../data/currencies";
 
 
 const UpdateSubscriptionModal: React.FC<UpdateSubscriptionModalProps> = ({ isOpen, onClose, onUpdate, categories, subscription }) => {
@@ -171,10 +172,11 @@ const UpdateSubscriptionModal: React.FC<UpdateSubscriptionModalProps> = ({ isOpe
                             isRequired
                             isInvalid={!!validationErrors.currency}
                             errorMessage={validationErrors.currency}
+
                         >
-                            {['USD', 'ARS', 'EUR'].map(currency => (
-                                <SelectItem key={currency} value={currency} className="dark">
-                                    {currency}
+                            {currencies.map(currency => (
+                                <SelectItem key={currency.value} value={currency.value} className="dark">
+                                    {currency.label}
                                 </SelectItem>
                             ))}
                         </Select>
