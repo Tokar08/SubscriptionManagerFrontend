@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Modal,
     ModalContent,
@@ -9,72 +9,74 @@ import {
     Input,
     SelectItem,
     Select,
-    DateInput,
-    DateValue
+    DateInput
 } from '@nextui-org/react';
-import { createSubscription } from '../../auth/keycloak';
-import {CreateSubscriptionModalProps} from "../../interfaces/ICreateSubscriptionModalProps";
-import {currencies} from "../../data/currencies";
+import { updateSubscription } from '../auth/keycloak';
+import { ISubscription } from '../interfaces/ISubscription';
+import { parseDate } from '@internationalized/date';
+import {UpdateSubscriptionModalProps} from "../interfaces/IUpdateSubscriptionModalProps";
+import {currencies} from "../data/currencies";
 
 
-const CreateSubscriptionModal: React.FC<CreateSubscriptionModalProps> = ({ isOpen, onClose, onCreate, categories }) => {
-    const [subscription, setSubscription] = useState({
+const UpdateSubscriptionModal: React.FC<UpdateSubscriptionModalProps> = ({ isOpen, onClose, onUpdate, categories, subscription }) => {
+    const [updatedSubscription, setUpdatedSubscription] = useState<ISubscription>({
         serviceName: '',
-        nextPaymentDate: null as DateValue | null | undefined,
-        amount: '',
-        currency: undefined as string | undefined,
-        categoryId: ''
+        nextPaymentDate: '',
+        amount: 0,
+        currency: '',
+        category: {
+            categoryId: '',
+            categoryName: '',
+        },
+        subscriptionId: '',
     });
+
     const [validationErrors, setValidationErrors] = useState<{ [key: string]: string | undefined }>({
         serviceName: undefined,
         nextPaymentDate: undefined,
         amount: undefined,
         currency: undefined,
-        categoryId: undefined
+        categoryId: undefined,
     });
 
-    const handleCreate = async () => {
+    useEffect(() => {
+        if (subscription) {
+            try {
+                const { nextPaymentDate, ...rest } = subscription;
+                setUpdatedSubscription({
+                    ...rest,
+                    nextPaymentDate: nextPaymentDate.split('T')[0],
+                });
+            } catch (error) {
+                console.error('Error parsing subscription data:', error);
+            }
+        }
+    }, [subscription]);
+
+    const handleUpdate = async () => {
         try {
             const isValid = validateForm();
             if (!isValid) {
                 return;
             }
 
-            const isoDateString = subscription.nextPaymentDate
-                ? `${subscription.nextPaymentDate.year}-${
-                    String(subscription.nextPaymentDate.month).padStart(2, '0')
-                }-${
-                    String(subscription.nextPaymentDate.day).padStart(2, '0')
-                }T00:00:00`
-                : null;
-
-            const nextPaymentDate = new Date(isoDateString!);
-            const now = new Date();
-            if (nextPaymentDate <= now) {
-                setValidationErrors(prevErrors => ({
-                    ...prevErrors,
-                    nextPaymentDate: 'Please enter a valid future date.'
-                }));
-                return;
-            }
-
             const subscriptionData = {
-                serviceName: subscription.serviceName,
-                nextPaymentDate: isoDateString,
-                amount: parseFloat(subscription.amount),
-                currency: subscription.currency!,
-                categoryId: subscription.categoryId
+                serviceName: updatedSubscription.serviceName,
+                nextPaymentDate: `${updatedSubscription.nextPaymentDate}T00:00:00`,
+                amount: updatedSubscription.amount,
+                currency: updatedSubscription.currency,
+                categoryId: updatedSubscription.category.categoryId
             };
 
-            console.log('Sending request to create subscription with data:', JSON.stringify(subscriptionData, null, 2));
+            console.log('Updating subscription with ID:', updatedSubscription.subscriptionId);
+            console.log('Subscription data:', subscriptionData);
 
-            await createSubscription(subscriptionData);
+            await updateSubscription(updatedSubscription.subscriptionId, subscriptionData);
 
-            resetForm();
-            onCreate();
+            onUpdate();
             onClose();
         } catch (error) {
-            console.error('Failed to create subscription:', error);
+            console.error('Failed to update subscription:', error);
         }
     };
 
@@ -82,28 +84,27 @@ const CreateSubscriptionModal: React.FC<CreateSubscriptionModalProps> = ({ isOpe
         let isValid = true;
         const errors: { [key: string]: string | undefined } = {};
 
-
-        if (!subscription.serviceName) {
+        if (!updatedSubscription.serviceName) {
             errors.serviceName = 'Service Name is required.';
             isValid = false;
         }
 
-        if (!subscription.nextPaymentDate || !isValidDate(subscription.nextPaymentDate)) {
+        if (!updatedSubscription.nextPaymentDate) {
             errors.nextPaymentDate = 'Please enter a valid date.';
             isValid = false;
         }
 
-        if (!subscription.amount) {
+        if (!updatedSubscription.amount) {
             errors.amount = 'Amount is required.';
             isValid = false;
         }
 
-        if (!subscription.currency) {
+        if (!updatedSubscription.currency) {
             errors.currency = 'Currency is required.';
             isValid = false;
         }
 
-        if (!subscription.categoryId) {
+        if (!updatedSubscription.category.categoryId) {
             errors.categoryId = 'Category is required.';
             isValid = false;
         }
@@ -112,40 +113,31 @@ const CreateSubscriptionModal: React.FC<CreateSubscriptionModalProps> = ({ isOpe
         return isValid;
     };
 
-    const isValidDate = (date: DateValue): boolean => {
-        const { year, month, day } = date;
-        const selectedDate = new Date(year, month - 1, day);
-        const now = new Date();
-        return selectedDate > now;
-    };
-
-    const resetForm = () => {
-        setSubscription({
-            serviceName: '',
-            nextPaymentDate: null,
-            amount: '',
-            currency: undefined,
-            categoryId: ''
-        });
-        setValidationErrors({
-            serviceName: undefined,
-            nextPaymentDate: undefined,
-            amount: undefined,
-            currency: undefined,
-            categoryId: undefined
-        });
+    const handleDateChange = (date: any) => {
+        if (date) {
+            const formattedDate = `${date.year}-${date.month + 1}-${date.day}`;
+            setUpdatedSubscription({
+                ...updatedSubscription,
+                nextPaymentDate: formattedDate,
+            });
+        } else {
+            setUpdatedSubscription({
+                ...updatedSubscription,
+                nextPaymentDate: '',
+            });
+        }
     };
 
     return (
         <Modal isOpen={isOpen} onClose={onClose} backdrop="blur">
             <ModalContent className="dark">
-                <ModalHeader className="flex flex-col gap-1 text-white">Create Subscription</ModalHeader>
+                <ModalHeader className="flex flex-col gap-1 text-white">Update Subscription</ModalHeader>
                 <ModalBody className="text-white">
                     <Input
                         label="Service Name"
                         placeholder="Enter service name"
-                        value={subscription.serviceName}
-                        onChange={(e) => setSubscription({ ...subscription, serviceName: e.target.value })}
+                        value={updatedSubscription.serviceName}
+                        onChange={(e) => setUpdatedSubscription({ ...updatedSubscription, serviceName: e.target.value })}
                         fullWidth
                         isRequired
                         isInvalid={!!validationErrors.serviceName}
@@ -153,20 +145,20 @@ const CreateSubscriptionModal: React.FC<CreateSubscriptionModalProps> = ({ isOpe
                     />
                     <DateInput
                         label="Next Payment Date"
-                        value={subscription.nextPaymentDate}
-                        onChange={(value) => setSubscription({ ...subscription, nextPaymentDate: value })}
                         fullWidth
                         isRequired
-                        isInvalid={!!validationErrors.nextPaymentDate}
                         errorMessage={validationErrors.nextPaymentDate}
+                        value={updatedSubscription.nextPaymentDate ? parseDate(`${updatedSubscription.nextPaymentDate}`) : undefined}
+                        onChange={handleDateChange}
                     />
+
                     <div className="flex gap-4">
                         <Input
                             label="Amount"
                             type="number"
                             placeholder="Enter amount"
-                            value={subscription.amount as string}
-                            onChange={(e) => setSubscription({ ...subscription, amount: e.target.value })}
+                            value={updatedSubscription.amount.toString()}
+                            onChange={(e) => setUpdatedSubscription({ ...updatedSubscription, amount: parseFloat(e.target.value) })}
                             fullWidth
                             isRequired
                             isInvalid={!!validationErrors.amount}
@@ -174,12 +166,13 @@ const CreateSubscriptionModal: React.FC<CreateSubscriptionModalProps> = ({ isOpe
                         />
                         <Select
                             label="Currency"
-                            value={subscription.currency}
-                            onChange={(e) => setSubscription({ ...subscription, currency: e.target.value })}
+                            selectedKeys={[updatedSubscription.currency]}
+                            onChange={(e) => setUpdatedSubscription({ ...updatedSubscription, currency: e.target.value })}
                             fullWidth
                             isRequired
                             isInvalid={!!validationErrors.currency}
                             errorMessage={validationErrors.currency}
+
                         >
                             {currencies.map(currency => (
                                 <SelectItem key={currency.value} value={currency.value} className="dark">
@@ -189,10 +182,12 @@ const CreateSubscriptionModal: React.FC<CreateSubscriptionModalProps> = ({ isOpe
                         </Select>
                     </div>
                     <Select
-                        className="dark"
                         label="Category"
-                        value={subscription.categoryId}
-                        onChange={(e) => setSubscription({ ...subscription, categoryId: e.target.value })}
+                        selectedKeys={[updatedSubscription.category.categoryId]}
+                        onChange={(e) => setUpdatedSubscription({
+                            ...updatedSubscription,
+                            category: { ...updatedSubscription.category, categoryId: e.target.value }
+                        })}
                         fullWidth
                         isRequired
                         isInvalid={!!validationErrors.categoryId}
@@ -209,8 +204,8 @@ const CreateSubscriptionModal: React.FC<CreateSubscriptionModalProps> = ({ isOpe
                     <Button color="danger" variant="light" onPress={onClose}>
                         Cancel
                     </Button>
-                    <Button color="primary" onPress={handleCreate}>
-                        Create
+                    <Button color="primary" onPress={handleUpdate}>
+                        Update
                     </Button>
                 </ModalFooter>
             </ModalContent>
@@ -218,4 +213,4 @@ const CreateSubscriptionModal: React.FC<CreateSubscriptionModalProps> = ({ isOpe
     );
 };
 
-export default CreateSubscriptionModal;
+export default UpdateSubscriptionModal;

@@ -15,8 +15,8 @@ import {
     useDisclosure
 } from '@nextui-org/react';
 import { ISubscriptionCardProps } from '../interfaces/ISubscriptionCardProps';
-import {EditDocumentIcon} from "../icons/EditSubIcon";
-import {DeleteSubIcon} from "../icons/DeleteSubIcon";
+import {EditDocumentIcon} from "../assets/icons/EditSubIcon";
+import {DeleteSubIcon} from "../assets/icons/DeleteSubIcon";
 
 const SubscriptionCard: React.FC<ISubscriptionCardProps> = ({
                                                                subscriptionId,

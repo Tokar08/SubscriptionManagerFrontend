@@ -21,6 +21,11 @@
     margin-bottom: 30px;
 }
 
+.custom-text-size {
+    font-size: 2.5rem;
+    font-weight: bold;
+}
+
 .gradient-background {
     background: linear-gradient(to bottom, black, #1a1a1a, #18181b);
 }

@@ -1,13 +1,13 @@
 import React, { useState, useEffect, ChangeEvent } from 'react';
 import MainNavbar from '../components/MainNavbar';
 import SubscriptionCard from '../components/SubscriptionCard';
-import CreateSubscriptionModal from '../components/modals/CreateSubscriptionModal';
-import UpdateSubscriptionModal from '../components/modals/UpdateSubscriptionModal';
+import CreateSubscriptionModal from '../modals/CreateSubscriptionModal';
+import UpdateSubscriptionModal from '../modals/UpdateSubscriptionModal';
 import { getSubscriptions, initKeycloak, deleteSubscription, getCategories, updateSubscription } from '../auth/keycloak';
 import { Pagination, Button, Input, Select, SelectItem } from '@nextui-org/react';
 import { ISubscription } from '../interfaces/ISubscription';
-import { SearchIcon } from "../icons/SearchIcon";
-import { AddSubIcon } from "../icons/AddSubIcon";
+import { SearchIcon } from "../assets/icons/SearchIcon";
+import { AddSubIcon } from "../assets/icons/AddSubIcon";
 import { ICategory } from "../interfaces/ICategory";
 
 const Home: React.FC = () => {
@@ -203,7 +203,7 @@ const Home: React.FC = () => {
                             setCurrentPage(page);
                         }}
                         showControls
-                        color="warning"
+                        color="success"
                         className="dark"
                     />
                 </div>

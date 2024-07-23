@@ -40,7 +40,7 @@ const MainNavbar: React.FC = () => {
 
             <NavbarContent className="hidden sm:flex items-center justify-between px-4">
                 <NavbarBrand>
-                    <p className="font-bold text-xl">Subscription Manager</p>
+                    <p className="font-bold text-2xl">Subscription Manager</p>
                 </NavbarBrand>
                 <div className="flex items-center space-x-8">
                     <NavbarItem>
@@ -54,7 +54,7 @@ const MainNavbar: React.FC = () => {
                     </NavbarItem>
                     <NavbarItem>
                         <Link
-                            href="/src/pages/Analytics"
+                            href="/analytics"
                             color="foreground"
                             className={`text-lg ${location.pathname === "/analytics" ? "text-blue-500" : ""}`}
                         >
@@ -85,7 +85,7 @@ const MainNavbar: React.FC = () => {
 
             <NavbarContent className="sm:hidden pr-3" justify="center">
                 <NavbarBrand>
-                    <p className="font-bold text-inherit text-xl">Subscription Manager</p>
+                    <p className="font-bold text-2xl">Subscription Manager</p>
                 </NavbarBrand>
             </NavbarContent>
 
@@ -101,7 +101,7 @@ const MainNavbar: React.FC = () => {
                 </NavbarMenuItem>
                 <NavbarMenuItem>
                     <Link
-                        href="/src/pages/Analytics"
+                        href="/analytics"
                         color="foreground"
                         className={`text-xl ${location.pathname === "/analytics" ? "text-blue-500" : ""}`}
                     >
