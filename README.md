@@ -1,46 +1,109 @@
-# Getting Started with Create React App
+# Subscription Manager Frontend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+[![React](https://img.shields.io/badge/React-18.3.1-61DAFB.svg)](https://reactjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-4.9.5-3178C6.svg)](https://www.typescriptlang.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.4.4-38B2AC.svg)](https://tailwindcss.com/)
+[![NextUI](https://img.shields.io/badge/NextUI-2.4.2-000000.svg)](https://nextui.org/)
 
-## Available Scripts
+A modern, responsive, and type-safe frontend application for the Subscription Manager. Built with React and TypeScript, it provides a seamless user interface for tracking recurring payments, visualizing expenses, and managing subscription categories. The application integrates securely with the backend via Keycloak authentication and RESTful APIs.
 
-In the project directory, you can run:
+## 🚀 Features
 
-### `npm start`
+- **Secure Authentication**: Single Sign-On (SSO) powered by Keycloak with automatic token management.
+- **Interactive Dashboard**: Visual representation of subscription costs and category breakdowns using CanvasJS charts.
+- **Full CRUD Interface**: Intuitive forms and tables for creating, reading, updating, and deleting subscriptions and categories.
+- **Modern UI/UX**: Beautiful, accessible, and responsive components built with NextUI and styled via Tailwind CSS.
+- **Type Safety**: Comprehensive TypeScript interfaces for API responses, props, and application state.
+- **Modular Architecture**: Clean separation of concerns (pages, components, modals, auth, data).
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+## 🛠️ Tech Stack
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+- **Core**: React 18, TypeScript
+- **Build Tool**: Create React App (react-scripts)
+- **Styling**: Tailwind CSS, NextUI, Framer Motion, Emotion
+- **State & Routing**: React Router DOM v6
+- **HTTP Client**: Axios
+- **Authentication**: Keycloak-js
+- **Data Visualization**: CanvasJS React Charts
 
-### `npm test`
+## 📋 Prerequisites
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Before running the project, ensure you have the following installed:
+- [Node.js](https://nodejs.org/) (v16 or higher recommended)
+- [npm](https://www.npmjs.com/) or [Yarn](https://yarnpkg.com/)
+- A running instance of the [Subscription Manager Backend](https://github.com/Tokar08/SubscriptionManager) and Keycloak server.
 
-### `npm run build`
+## ⚙️ Installation & Setup
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### 1. Clone the Repository
+```bash
+git clone https://github.com/Tokar08/SubscriptionManagerFrontend.git
+cd SubscriptionManagerFrontend
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### 2. Install Dependencies
+Install all required npm packages:
+```bash
+npm install
+```
+*(or `yarn install`)*
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### 3. Configure Environment (Optional)
+The Keycloak configuration is currently located in `src/auth/keycloak.ts`. Ensure the settings match your local Keycloak instance:
+```typescript
+const initOptions = {
+    url: 'http://localhost:8081',
+    realm: 'subscription-manager',
+    clientId: 'subscription-manager',
+    onLoad: 'login-required'
+};
+```
+*Note: If your backend runs on a different port, update the Axios base URL in the respective API service files.*
 
-### `npm run eject`
+### 4. Run the Development Server
+Start the application in development mode:
+```bash
+npm start
+```
+The app will be available at `http://localhost:3000`. The page will automatically reload if you make edits to the source code.
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+## 📂 Project Structure
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```text
+src/
+├── assets/          # Static assets (icons, images)
+├── auth/            # Keycloak initialization and authentication logic
+├── components/      # Reusable UI components (tables, forms, cards)
+├── data/            # Static data and constants (e.g., currency lists)
+├── interfaces/      # TypeScript type definitions and interfaces
+├── modals/          # Modal dialog components for CRUD operations
+├── pages/           # Main application views and route components
+├── App.tsx          # Main application component and routing setup
+├── index.tsx        # Application entry point
+└── globals.css      # Global Tailwind CSS directives and custom styles
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+## 📡 API Integration
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+The frontend communicates with the backend REST API (default: `http://localhost:7878/api/v1`). All protected requests automatically attach the Keycloak Bearer token via Axios interceptors.
 
-## Learn More
+Key integrated endpoints:
+- `GET /api/v1/subscriptions` – Fetch user subscriptions for the dashboard.
+- `POST /api/v1/subscriptions` – Create a new subscription.
+- `GET /api/v1/categories` – Fetch available categories for dropdowns and filtering.
+- `GET /api/v1/subscriptions/total-amounts` – Fetch aggregated data for CanvasJS charts.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## 🏗️ Building for Production
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+To create an optimized production build:
+```bash
+npm run build
+```
+This command bundles React in production mode, minifies the code, and generates hashed filenames for optimal caching. The output will be in the `build/` directory, ready to be served by any static file server (e.g., Nginx, Vercel, Netlify).
+
+## 🧪 Testing
+
+Run the test suite in interactive watch mode:
+```bash
+npm test
+```
